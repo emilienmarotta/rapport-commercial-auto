@@ -17,7 +17,7 @@ pour le workflow Git).
 - [x] **M4 — Workflow n8n.** Planification 7h30, nœuds Postgres, assemblage
   et envoi du mail, branche d'erreur. Spec :
   [specs/04-n8n-workflow.md](specs/04-n8n-workflow.md).
-- [ ] **M5 — Template du mail.** HTML sobre, lisible en 30 secondes, bonus
+- [x] **M5 — Template du mail.** HTML sobre, lisible en 30 secondes, bonus
   graphique. Spec : [specs/05-email-template.md](specs/05-email-template.md).
 - [ ] **M6 — Livrables portfolio.** Capture mail, schéma du flux, README
   final. Spec : [specs/06-deliverables.md](specs/06-deliverables.md).
