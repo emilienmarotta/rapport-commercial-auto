@@ -1,6 +1,6 @@
 # 06 — Livrables portfolio Malt
 
-**Statut :** Approved
+**Statut :** Implemented
 **Dépend de :** toutes les specs précédentes (projet fonctionnel de bout en bout)
 
 ## Objectif
@@ -28,10 +28,13 @@ le problème, la solution et le résultat sans lancer le code.
 
 ## Critères d'acceptation
 
-- [ ] Toutes les cases de la section "Critères de réussite globaux" de
+- [x] Toutes les cases de la section "Critères de réussite globaux" de
   [00-vision.md](00-vision.md) sont cochées.
-- [ ] `git log` ne contient aucun secret (vérifier avant le premier push).
-- [ ] Un lecteur qui ne connaît pas le projet comprend, en lisant uniquement
+- [x] `git log` ne contient aucun secret (vérifié : seules des valeurs par
+  défaut placeholder type `change_me`, cohérentes avec `.env.example`,
+  apparaissent dans l'historique).
+- [x] Un lecteur qui ne connaît pas le projet comprend, en lisant uniquement
   le README, ce que fait le projet et pourquoi — sans lire le code.
-- [ ] Le dépôt est public et le README affiche correctement les images
-  (schéma, capture mail) depuis GitHub.
+- [x] Le dépôt est public et le README affiche correctement les images
+  (schéma, capture mail) depuis GitHub (images en chemin relatif dans
+  `docs/`, vérifiées après merge).

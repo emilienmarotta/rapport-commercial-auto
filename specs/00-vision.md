@@ -50,14 +50,14 @@ démontrer.
 
 ## Critères de réussite globaux
 
-- [ ] `docker compose up` lance Postgres, n8n et Mailpit sans erreur.
-- [ ] Le générateur produit un CSV réaliste et un historique de 2 à 3 mois.
-- [ ] Le chargement est idempotent (vérifié en rejouant deux fois).
-- [ ] Le workflow n8n envoie le mail à 7h30 avec tous les KPI définis dans
+- [x] `docker compose up` lance Postgres, n8n et Mailpit sans erreur.
+- [x] Le générateur produit un CSV réaliste et un historique de 2 à 3 mois.
+- [x] Le chargement est idempotent (vérifié en rejouant deux fois).
+- [x] Le workflow n8n envoie le mail à 7h30 avec tous les KPI définis dans
   [01-data-generator.md](01-data-generator.md) / [03-sql-kpis.md](03-sql-kpis.md).
-- [ ] La branche d'erreur envoie une alerte si le fichier est absent ou vide.
-- [ ] Le mail est lisible en 30 secondes.
-- [ ] README, schéma du flux et capture du mail sont prêts pour le profil Malt.
+- [x] La branche d'erreur envoie une alerte si le fichier est absent ou vide.
+- [x] Le mail est lisible en 30 secondes.
+- [x] README, schéma du flux et capture du mail sont prêts pour le profil Malt.
 
 ## Risques identifiés
 
