@@ -6,7 +6,7 @@ pour le workflow Git).
 
 - [x] **M0 — Squelette + environnement.** `docker-compose.yml` (Postgres,
   n8n, Mailpit), `.env.example`, `.gitignore`, README initial, specs/.
-- [ ] **M1 — Générateur de données fictives.** CSV façon export ERP,
+- [x] **M1 — Générateur de données fictives.** CSV façon export ERP,
   historique de 2-3 mois, modes d'anomalie. Spec :
   [specs/01-data-generator.md](specs/01-data-generator.md).
 - [ ] **M2 — Chargement Postgres.** Nettoyage léger + chargement idempotent

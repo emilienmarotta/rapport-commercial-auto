@@ -1,6 +1,6 @@
 # 01 — Générateur de données fictives
 
-**Statut :** Approved
+**Statut :** Implemented
 **Dépend de :** [00-vision.md](00-vision.md)
 
 ## Objectif
