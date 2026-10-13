@@ -1,0 +1,180 @@
+{
+  "name": "Rapport commercial quotidien",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "name": "Déclencheur quotidien 7h30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-800, 0],
+      "id": "a1b1c1d1-0001-4000-8000-000000000001"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Le rapport du matin porte sur les ventes de la veille : on calcule la date\n// et le chemin du CSV attendu (produit par le générateur, spec 01), monté dans\n// /data à la fois ici et côté service loader.\nconst dateVeille = $today.minus({ days: 1 }).toFormat('yyyy-MM-dd');\n\nreturn [\n  {\n    json: {\n      date_veille: dateVeille,\n      csv_path: `/data/export_${dateVeille}.csv`,\n    },\n  },\n];\n"
+      },
+      "name": "Chemin du CSV du jour",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-580, 0],
+      "id": "a1b1c1d1-0002-4000-8000-000000000002"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://loader:8000/load",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ file: $json.csv_path }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "name": "Charger le CSV (loader API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-360, 0],
+      "id": "a1b1c1d1-0003-4000-8000-000000000003"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "55269109-9189-4463-bf6b-645934ed6a66",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ok",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "CSV chargé ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-140, 0],
+      "id": "a1b1c1d1-0004-4000-8000-000000000004"
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "operation": "executeQuery",
+        "query": "-- Une sous-requête par vue KPI (spec 03) : une seule ligne de résultat,\n-- consommée directement par le nœud d'assemblage du mail. Aucune agrégation\n-- métier ici, uniquement la lecture des vues.\nSELECT\n  (SELECT row_to_json(v) FROM kpi_ca_veille v) AS ca_veille,\n  (SELECT row_to_json(v) FROM kpi_comparaison_j7 v) AS comparaison_j7,\n  (SELECT row_to_json(v) FROM kpi_comparaison_moyenne_mois v) AS comparaison_moyenne_mois,\n  (SELECT json_agg(v) FROM kpi_top_clients v) AS top_clients,\n  (SELECT json_agg(v) FROM kpi_top_produits v) AS top_produits,\n  (SELECT json_agg(v) FROM kpi_ca_region v) AS ca_region,\n  (SELECT row_to_json(v) FROM kpi_alerte_chute v) AS alerte_chute;\n",
+        "options": {}
+      },
+      "name": "Lire les KPI (vues SQL)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [100, -100],
+      "id": "a1b1c1d1-0005-4000-8000-000000000005",
+      "credentials": {
+        "postgres": {
+          "id": "cred0postgresrapport01",
+          "name": "Postgres - rapport_commercial"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Assemblage HTML minimal des 7 KPI (spec 03) ; mise en forme avancée\n// (couleurs, flèches stylées, graphique bonus) réservée à la spec 05.\nconst row = $input.first().json;\n\nconst ca = row.ca_veille;\nconst j7 = row.comparaison_j7;\nconst mois = row.comparaison_moyenne_mois;\nconst topClients = row.top_clients || [];\nconst topProduits = row.top_produits || [];\nconst region = row.ca_region || [];\nconst alerte = row.alerte_chute;\n\nconst euros = (n) =>\n  Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' \\u20ac';\n\nconst fleche = (ecart) => (ecart >= 0 ? '\\u25b2' : '\\u25bc');\n\nconst lignes = (items, labelKey) =>\n  items\n    .map((i) => `<tr><td>${i[labelKey]}</td><td style=\"text-align:right\">${euros(i.ca)}</td></tr>`)\n    .join('');\n\nconst bandeauAlerte = alerte && alerte.alerte\n  ? `<p><strong>Alerte : CA en forte baisse (${alerte.ecart_pourcent}% vs J-7)</strong></p>`\n  : '';\n\nconst html = `\n<html>\n<body style=\"font-family: Arial, sans-serif; color:#222;\">\n${bandeauAlerte}\n<h1>CA de la veille (${ca.date_veille}) : ${euros(ca.ca)}</h1>\n<p>\n  vs J-7 (${euros(j7.ca_j7)}) : ${fleche(j7.ecart_valeur)} ${j7.ecart_pourcent}%<br/>\n  vs moyenne du mois (${euros(mois.ca_moyen_mois)}) : ${fleche(mois.ecart_valeur)} ${mois.ecart_pourcent}%\n</p>\n<h2>Top 5 clients</h2>\n<table cellpadding=\"4\">${lignes(topClients, 'cli_nom')}</table>\n<h2>Top 5 produits</h2>\n<table cellpadding=\"4\">${lignes(topProduits, 'art_lib')}</table>\n<h2>CA par région</h2>\n<table cellpadding=\"4\">${lignes(region, 'region')}</table>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: `Rapport commercial \\u2014 ${ca.date_veille}`, html } }];\n"
+      },
+      "name": "Construire le mail (rapport)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [340, -100],
+      "id": "a1b1c1d1-0006-4000-8000-000000000006"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Branche erreur (spec 04) : jamais de chiffres faux ou à zéro, juste la raison.\nconst row = $input.first().json;\nconst reason = row.reason || 'raison inconnue';\n\nconst html = `\n<html>\n<body style=\"font-family: Arial, sans-serif; color:#611a15;\">\n<h1>Rapport non g\\u00e9n\\u00e9r\\u00e9</h1>\n<p>Raison : ${reason}</p>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: 'ALERTE \\u2014 Rapport non g\\u00e9n\\u00e9r\\u00e9', html } }];\n"
+      },
+      "name": "Construire le mail (alerte)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [100, 150],
+      "id": "a1b1c1d1-0007-4000-8000-000000000007"
+    },
+    {
+      "parameters": {
+        "resource": "email",
+        "operation": "send",
+        "fromEmail": "rapport@rapport-commercial-auto.local",
+        "toEmail": "directeur.commercial@rapport-commercial-auto.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "name": "Envoyer le mail",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [580, 0],
+      "id": "a1b1c1d1-0008-4000-8000-000000000008",
+      "credentials": {
+        "smtp": {
+          "id": "cred0smtpmailpit000001",
+          "name": "SMTP - Mailpit"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Déclencheur quotidien 7h30": {
+      "main": [[{ "node": "Chemin du CSV du jour", "type": "main", "index": 0 }]]
+    },
+    "Chemin du CSV du jour": {
+      "main": [[{ "node": "Charger le CSV (loader API)", "type": "main", "index": 0 }]]
+    },
+    "Charger le CSV (loader API)": {
+      "main": [[{ "node": "CSV chargé ?", "type": "main", "index": 0 }]]
+    },
+    "CSV chargé ?": {
+      "main": [
+        [{ "node": "Lire les KPI (vues SQL)", "type": "main", "index": 0 }],
+        [{ "node": "Construire le mail (alerte)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lire les KPI (vues SQL)": {
+      "main": [[{ "node": "Construire le mail (rapport)", "type": "main", "index": 0 }]]
+    },
+    "Construire le mail (rapport)": {
+      "main": [[{ "node": "Envoyer le mail", "type": "main", "index": 0 }]]
+    },
+    "Construire le mail (alerte)": {
+      "main": [[{ "node": "Envoyer le mail", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
