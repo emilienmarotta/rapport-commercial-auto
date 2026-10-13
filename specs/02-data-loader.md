@@ -1,6 +1,6 @@
 # 02 — Chargement Postgres
 
-**Statut :** Approved
+**Statut :** Implemented
 **Dépend de :** [01-data-generator.md](01-data-generator.md)
 
 ## Objectif
@@ -59,10 +59,10 @@ Code de sortie `0` = succès, `!= 0` = échec (déclenche l'alerte n8n).
 
 ## Critères d'acceptation
 
-- [ ] Charger un CSV valide crée les lignes attendues dans `raw_ventes`.
-- [ ] Recharger le **même** fichier une deuxième fois ne crée aucun doublon
+- [x] Charger un CSV valide crée les lignes attendues dans `raw_ventes`.
+- [x] Recharger le **même** fichier une deuxième fois ne crée aucun doublon
   (vérifié par un `COUNT(*)` avant/après).
-- [ ] Charger un fichier vide retourne un code de sortie non-zéro, sans
+- [x] Charger un fichier vide retourne un code de sortie non-zéro, sans
   toucher à la base.
-- [ ] Charger un fichier avec une colonne manquante retourne un code de
+- [x] Charger un fichier avec une colonne manquante retourne un code de
   sortie non-zéro, sans toucher à la base.

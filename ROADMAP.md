@@ -9,7 +9,7 @@ pour le workflow Git).
 - [x] **M1 — Générateur de données fictives.** CSV façon export ERP,
   historique de 2-3 mois, modes d'anomalie. Spec :
   [specs/01-data-generator.md](specs/01-data-generator.md).
-- [ ] **M2 — Chargement Postgres.** Nettoyage léger + chargement idempotent
+- [x] **M2 — Chargement Postgres.** Nettoyage léger + chargement idempotent
   dans `raw_ventes`. Spec : [specs/02-data-loader.md](specs/02-data-loader.md).
 - [ ] **M3 — Requêtes SQL des KPI.** Une vue par bloc du rapport (CA veille,
   comparaisons, top clients/produits, CA région, alerte chute). Spec :
