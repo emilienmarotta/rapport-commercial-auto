@@ -8,7 +8,7 @@ Statut possible : `Draft` (à valider) · `Approved` (prête à implémenter) ·
 | Spec | Domaine | Statut |
 |---|---|---|
 | [00-vision.md](00-vision.md) | Vision, contraintes, critères de réussite globaux | Approved |
-| [01-data-generator.md](01-data-generator.md) | Générateur de CSV fictif | Approved |
+| [01-data-generator.md](01-data-generator.md) | Générateur de CSV fictif | Implemented |
 | [02-data-loader.md](02-data-loader.md) | Chargement Postgres idempotent | Approved |
 | [03-sql-kpis.md](03-sql-kpis.md) | Vues / requêtes KPI | Approved |
 | [04-n8n-workflow.md](04-n8n-workflow.md) | Orchestration n8n + branche d'erreur | Approved |
