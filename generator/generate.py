@@ -20,8 +20,8 @@ COLUMNS = [
 ]
 
 REGIONS = [
-    "Ile-de-France",
-    "Auvergne-Rhone-Alpes",
+    "Île-de-France",
+    "Auvergne-Rhône-Alpes",
     "Nouvelle-Aquitaine",
     "Occitanie",
     "Hauts-de-France",
@@ -33,18 +33,18 @@ REGIONS = [
 # "top 5" aient un sens sur plusieurs mois.
 PRODUCT_NAMES = [
     "Carton de gants nitrile", "Palette de bouteilles PET 1L",
-    "Rouleau de film etirable", "Lot de cartons d'emballage 40x30",
+    "Rouleau de film étirable", "Lot de cartons d'emballage 40x30",
     "Palette de briques de lait UHT", "Carton de bouteilles d'eau 50cl",
     "Lot de sacs kraft", "Carton de gobelets jetables",
     "Rouleau de papier essuyage industriel", "Palette de conserves 1/2",
     "Carton de sacs poubelle 100L", "Lot de gants de protection cuir",
     "Palette de briques de jus de fruit", "Carton de serviettes en papier",
     "Lot de palettes bois EUR", "Carton de bouteilles d'huile 1L",
-    "Rouleau de ruban adhesif emballage", "Palette de packs d'eau gazeuse",
-    "Carton de boites de conserve legumes", "Lot de housses plastique palette",
-    "Carton de bidons de detergent 5L", "Palette de sacs de farine 25kg",
-    "Carton de boites de cafe moulu", "Lot de caisses plastique gerbables",
-    "Palette de packs de biere 33cl",
+    "Rouleau de ruban adhésif emballage", "Palette de packs d'eau gazeuse",
+    "Carton de boîtes de conserve légumes", "Lot de housses plastique palette",
+    "Carton de bidons de détergent 5L", "Palette de sacs de farine 25kg",
+    "Carton de boîtes de café moulu", "Lot de caisses plastique gerbables",
+    "Palette de packs de bière 33cl",
 ]
 
 
