@@ -16,7 +16,10 @@
       "name": "Déclencheur quotidien 7h30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [-800, 0],
+      "position": [
+        -800,
+        0
+      ],
       "id": "a1b1c1d1-0001-4000-8000-000000000001"
     },
     {
@@ -28,7 +31,10 @@
       "name": "Chemin du CSV du jour",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-580, 0],
+      "position": [
+        -580,
+        0
+      ],
       "id": "a1b1c1d1-0002-4000-8000-000000000002"
     },
     {
@@ -51,7 +57,10 @@
       "name": "Charger le CSV (loader API)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-360, 0],
+      "position": [
+        -360,
+        0
+      ],
       "id": "a1b1c1d1-0003-4000-8000-000000000003"
     },
     {
@@ -68,7 +77,10 @@
               "id": "55269109-9189-4463-bf6b-645934ed6a66",
               "leftValue": "={{ $json.status }}",
               "rightValue": "ok",
-              "operator": { "type": "string", "operation": "equals" }
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
           ],
           "combinator": "and"
@@ -78,7 +90,10 @@
       "name": "CSV chargé ?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [-140, 0],
+      "position": [
+        -140,
+        0
+      ],
       "id": "a1b1c1d1-0004-4000-8000-000000000004"
     },
     {
@@ -91,7 +106,10 @@
       "name": "Lire les KPI (vues SQL)",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [100, -100],
+      "position": [
+        100,
+        -100
+      ],
       "id": "a1b1c1d1-0005-4000-8000-000000000005",
       "credentials": {
         "postgres": {
@@ -104,24 +122,30 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "// Assemblage HTML du rapport (spec 05) : CA en grand, flèches colorées selon\n// le signe, tableaux top 5, CA par région avec mini-barres en CSS (bonus\n// graphique sans dépendance externe à un service de chart en ligne),\n// bandeau d'alerte business si kpi_alerte_chute est vrai.\nconst row = $input.first().json;\n\nconst ca = row.ca_veille;\nconst j7 = row.comparaison_j7;\nconst mois = row.comparaison_moyenne_mois;\nconst topClients = row.top_clients || [];\nconst topProduits = row.top_produits || [];\nconst region = row.ca_region || [];\nconst alerte = row.alerte_chute;\n\nconst euros = (n) =>\n  Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\n\nconst couleur = (ecart) => (ecart >= 0 ? '#1a7f37' : '#c0392b');\nconst fleche = (ecart) => (ecart >= 0 ? '▲' : '▼');\n\nconst ligneComparaison = (label, valeurRef, ecartValeur, ecartPourcent) => `\n  <tr>\n    <td style=\"padding:4px 8px;color:#6b7280;\">${label} (${euros(valeurRef)})</td>\n    <td style=\"padding:4px 8px;text-align:right;color:${couleur(ecartValeur)};font-weight:bold;\">${fleche(ecartValeur)} ${ecartPourcent}%</td>\n  </tr>`;\n\nconst ligneTableau = (items, labelKey) =>\n  items\n    .map(\n      (i) => `\n    <tr>\n      <td style=\"padding:4px 8px;border-bottom:1px solid #e5e7eb;\">${i[labelKey]}</td>\n      <td style=\"padding:4px 8px;border-bottom:1px solid #e5e7eb;text-align:right;\">${euros(i.ca)}</td>\n    </tr>`\n    )\n    .join('');\n\nconst maxRegionCa = Math.max(...region.map((r) => Number(r.ca)), 1);\nconst barresRegion = region\n  .map((r) => {\n    const largeur = Math.round((Number(r.ca) / maxRegionCa) * 100);\n    return `\n    <tr>\n      <td style=\"padding:4px 8px;width:30%;\">${r.region}</td>\n      <td style=\"padding:4px 8px;\">\n        <div style=\"background:#e5e7eb;border-radius:3px;\">\n          <div style=\"background:#2563eb;color:#fff;font-size:11px;padding:2px 6px;border-radius:3px;width:${largeur}%;min-width:28px;white-space:nowrap;\">${euros(r.ca)}</div>\n        </div>\n      </td>\n    </tr>`;\n  })\n  .join('');\n\nconst bandeauAlerte =\n  alerte && alerte.alerte\n    ? `<div style=\"background:#fdecea;border-left:4px solid #c0392b;color:#c0392b;padding:10px 14px;font-weight:bold;margin-bottom:16px;\">⚠ Alerte : CA en forte baisse (${alerte.ecart_pourcent}% vs J-7)</div>`\n    : '';\n\nconst html = `\n<html>\n<body style=\"font-family: Arial, sans-serif; color:#222; max-width:600px; margin:0 auto;\">\n${bandeauAlerte}\n<p style=\"color:#6b7280;margin:0 0 2px 0;\">CA de la veille — ${ca.date_veille}</p>\n<p style=\"font-size:34px;font-weight:bold;margin:0 0 12px 0;\">${euros(ca.ca)}</p>\n<table style=\"border-collapse:collapse;margin-bottom:20px;\">\n  ${ligneComparaison('vs J-7', j7.ca_j7, j7.ecart_valeur, j7.ecart_pourcent)}\n  ${ligneComparaison('vs moyenne du mois', mois.ca_moyen_mois, mois.ecart_valeur, mois.ecart_pourcent)}\n</table>\n\n<h2 style=\"font-size:16px;border-bottom:2px solid #222;padding-bottom:4px;\">Top 5 clients</h2>\n<table style=\"border-collapse:collapse;width:100%;margin-bottom:20px;\">${ligneTableau(topClients, 'cli_nom')}</table>\n\n<h2 style=\"font-size:16px;border-bottom:2px solid #222;padding-bottom:4px;\">Top 5 produits</h2>\n<table style=\"border-collapse:collapse;width:100%;margin-bottom:20px;\">${ligneTableau(topProduits, 'art_lib')}</table>\n\n<h2 style=\"font-size:16px;border-bottom:2px solid #222;padding-bottom:4px;\">CA par région</h2>\n<table style=\"border-collapse:collapse;width:100%;margin-bottom:20px;\">${barresRegion}</table>\n\n<p style=\"color:#9ca3af;font-size:11px;margin-top:24px;\">Données fictives — projet de démonstration, aucun gain de temps réel mesuré.</p>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: `Rapport commercial — ${ca.date_veille}`, html } }];\n"
+        "jsCode": "// Assemblage HTML du rapport (spec 05) : CA en grand, pastilles de tendance\n// colorées selon le signe, classements client/produit numérotés, CA par\n// région en mini-barres CSS (bonus graphique sans dépendance externe à un\n// service de chart en ligne), bandeau d'alerte business si\n// kpi_alerte_chute est vrai.\nconst row = $input.first().json;\n\nconst ca = row.ca_veille;\nconst j7 = row.comparaison_j7;\nconst mois = row.comparaison_moyenne_mois;\nconst topClients = row.top_clients || [];\nconst topProduits = row.top_produits || [];\nconst region = row.ca_region || [];\nconst alerte = row.alerte_chute;\n\nconst euros = (n) =>\n  Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\n\nconst dateLongue = (d) => {\n  const parsed = new Date(d);\n  return Number.isNaN(parsed.getTime())\n    ? d\n    : parsed.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });\n};\n\nconst pastille = (ecartValeur, ecartPourcent) => {\n  const hausse = ecartValeur >= 0;\n  const bg = hausse ? '#f0fdf4' : '#fff1f2';\n  const border = hausse ? '#bbf7d0' : '#fecdd3';\n  const fg = hausse ? '#15803d' : '#be123c';\n  const fleche = hausse ? '▲' : '▼';\n  return `<span style=\"display:inline-block;background:${bg};border:1px solid ${border};color:${fg};font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;\">${fleche} ${ecartPourcent}&nbsp;%</span>`;\n};\n\nconst ligneComparaison = (label, valeurRef, ecartValeur, ecartPourcent, premiere) => `\n  <tr>\n    <td style=\"padding:8px 0;color:#64748b;font-size:13px;${premiere ? '' : 'border-top:1px solid #f1f5f9;'}\">${label} <span style=\"color:#94a3b8;\">(${euros(valeurRef)})</span></td>\n    <td style=\"padding:8px 0;text-align:right;${premiere ? '' : 'border-top:1px solid #f1f5f9;'}\">${pastille(ecartValeur, ecartPourcent)}</td>\n  </tr>`;\n\nconst classement = (items, labelKey, couleurRang) =>\n  items\n    .map((item, index) => {\n      const dernier = index === items.length - 1;\n      const bordure = dernier ? '' : 'border-bottom:1px solid #f1f5f9;';\n      return `\n    <tr>\n      <td style=\"width:28px;padding:8px 0;${bordure}\"><div style=\"width:22px;height:22px;border-radius:50%;background:${couleurRang};color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;\">${index + 1}</div></td>\n      <td style=\"padding:8px 0;${bordure}color:#1e293b;font-size:13.5px;font-weight:500;\">${item[labelKey]}</td>\n      <td style=\"padding:8px 0;${bordure}color:#0f172a;font-size:13.5px;font-weight:600;text-align:right;\">${euros(item.ca)}</td>\n    </tr>`;\n    })\n    .join('');\n\nconst maxRegionCa = Math.max(...region.map((r) => Number(r.ca)), 1);\nconst barresRegion = region\n  .map((r) => {\n    const largeur = Math.max(Math.round((Number(r.ca) / maxRegionCa) * 100), 4);\n    return `\n    <tr>\n      <td style=\"width:120px;padding:7px 0;color:#475569;font-size:12.5px;\">${r.region}</td>\n      <td style=\"padding:7px 8px;\">\n        <div style=\"background:#f1f5f9;border-radius:999px;height:8px;overflow:hidden;\">\n          <div style=\"background:#8b5cf6;background:linear-gradient(90deg,#6366f1,#8b5cf6);height:8px;border-radius:999px;width:${largeur}%;\"></div>\n        </div>\n      </td>\n      <td style=\"width:84px;padding:7px 0;color:#0f172a;font-size:12.5px;font-weight:600;text-align:right;\">${euros(r.ca)}</td>\n    </tr>`;\n  })\n  .join('');\n\nconst sectionTitre = (couleur, texte) => `\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-bottom:12px;\"><tr>\n      <td style=\"width:3px;\"><div style=\"width:3px;height:14px;background:${couleur};border-radius:2px;\"></div></td>\n      <td style=\"padding-left:8px;color:#0f172a;font-size:14px;font-weight:700;\">${texte}</td>\n    </tr></table>`;\n\nconst bandeauAlerte =\n  alerte && alerte.alerte\n    ? `\n  <div style=\"background:#fff1f2;padding:14px 32px;border-bottom:1px solid #fecdd3;\">\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"width:22px;vertical-align:top;\">\n        <div style=\"width:20px;height:20px;border-radius:50%;background:#e11d48;color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:20px;\">!</div>\n      </td>\n      <td style=\"padding-left:10px;\">\n        <span style=\"color:#be123c;font-size:13px;font-weight:600;\">CA en forte baisse</span>\n        <span style=\"color:#9f1239;font-size:13px;\"> — ${alerte.ecart_pourcent}&nbsp;% par rapport à J-7</span>\n      </td>\n    </tr></table>\n  </div>`\n    : '';\n\nconst html = `\n<html>\n<body style=\"margin:0;padding:32px 16px;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n<div style=\"max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;\">\n\n  <div style=\"background:#0f172a;background:linear-gradient(135deg,#0f172a,#1e293b);padding:24px 32px;\">\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"width:36px;\">\n        <div style=\"width:32px;height:32px;border-radius:9px;background:#4f46e5;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:13px;font-weight:700;text-align:center;line-height:32px;letter-spacing:-0.02em;\">RC</div>\n      </td>\n      <td style=\"padding-left:12px;\">\n        <div style=\"color:#f8fafc;font-size:14px;font-weight:600;letter-spacing:0.01em;\">Rapport commercial</div>\n        <div style=\"color:#94a3b8;font-size:12px;margin-top:2px;\">Édition du ${dateLongue(ca.date_veille)}</div>\n      </td>\n    </tr></table>\n  </div>\n\n  ${bandeauAlerte}\n\n  <div style=\"padding:32px 32px 20px 32px;\">\n    <div style=\"color:#94a3b8;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;\">CA de la veille</div>\n    <div style=\"color:#0f172a;font-size:46px;font-weight:700;letter-spacing:-0.02em;margin-top:6px;font-variant-numeric:tabular-nums;\">${euros(ca.ca)}</div>\n\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;margin-top:18px;\">\n      ${ligneComparaison('vs J-7', j7.ca_j7, j7.ecart_valeur, j7.ecart_pourcent, true)}\n      ${ligneComparaison('vs moyenne du mois', mois.ca_moyen_mois, mois.ecart_valeur, mois.ecart_pourcent, false)}\n    </table>\n  </div>\n\n  <div style=\"padding:8px 32px 24px 32px;\">\n    ${sectionTitre('#0f172a', 'Top 5 clients')}\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\">${classement(topClients, 'cli_nom', '#0f172a')}</table>\n  </div>\n\n  <div style=\"padding:0 32px 24px 32px;\">\n    ${sectionTitre('#4f46e5', 'Top 5 produits')}\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\">${classement(topProduits, 'art_lib', '#4f46e5')}</table>\n  </div>\n\n  <div style=\"padding:0 32px 8px 32px;\">\n    ${sectionTitre('#8b5cf6', 'CA par région')}\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\">${barresRegion}</table>\n  </div>\n\n  <div style=\"padding:20px 32px 26px 32px;border-top:1px solid #e2e8f0;margin-top:8px;\">\n    <div style=\"color:#94a3b8;font-size:11px;text-align:center;line-height:1.6;\">\n      Généré automatiquement — données fictives, projet de démonstration.<br>Aucun gain de temps réel mesuré.\n    </div>\n  </div>\n\n</div>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: `Rapport commercial — ${ca.date_veille}`, html } }];"
       },
       "name": "Construire le mail (rapport)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [340, -100],
+      "position": [
+        340,
+        -100
+      ],
       "id": "a1b1c1d1-0006-4000-8000-000000000006"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "// Branche erreur (spec 04/05) : gabarit volontairement distinct du rapport\n// normal (bandeau plein, pas de tableaux), jamais de chiffres faux ou à zéro.\nconst row = $input.first().json;\nconst reason = row.reason || 'raison inconnue';\n\nconst html = `\n<html>\n<body style=\"font-family: Arial, sans-serif; margin:0; padding:0; background:#f3f4f6;\">\n<div style=\"max-width:600px;margin:0 auto;\">\n  <div style=\"background:#c0392b;color:#fff;padding:16px 20px;font-size:20px;font-weight:bold;\">⚠ Rapport non généré</div>\n  <div style=\"background:#fff;padding:20px;color:#222;\">\n    <p>Le rapport commercial automatique n'a pas pu être généré ce matin.</p>\n    <p><strong>Raison :</strong> ${reason}</p>\n    <p style=\"color:#9ca3af;font-size:11px;margin-top:24px;\">Projet de démonstration — données fictives.</p>\n  </div>\n</div>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: 'ALERTE — Rapport non généré', html } }];\n"
+        "jsCode": "// Branche erreur (spec 04/05) : gabarit volontairement distinct du rapport\n// normal (pas de chiffres, pas de tableaux), jamais de chiffres faux ou à\n// zéro. Même identité visuelle que le rapport (en-tête sombre, carte blanche)\n// pour que les deux mails soient reconnaissables comme le même produit.\nconst row = $input.first().json;\nconst reason = row.reason || 'raison inconnue';\n\nconst html = `\n<html>\n<body style=\"margin:0;padding:32px 16px;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">\n<div style=\"max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;\">\n\n  <div style=\"background:#0f172a;background:linear-gradient(135deg,#0f172a,#1e293b);padding:24px 32px;\">\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"width:36px;\">\n        <div style=\"width:32px;height:32px;border-radius:9px;background:#4f46e5;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:13px;font-weight:700;text-align:center;line-height:32px;letter-spacing:-0.02em;\">RC</div>\n      </td>\n      <td style=\"padding-left:12px;\">\n        <div style=\"color:#f8fafc;font-size:14px;font-weight:600;letter-spacing:0.01em;\">Rapport commercial</div>\n        <div style=\"color:#94a3b8;font-size:12px;margin-top:2px;\">Alerte technique</div>\n      </td>\n    </tr></table>\n  </div>\n\n  <div style=\"padding:32px;\">\n    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"width:28px;vertical-align:top;\">\n        <div style=\"width:24px;height:24px;border-radius:50%;background:#e11d48;color:#fff;font-size:14px;font-weight:700;text-align:center;line-height:24px;\">!</div>\n      </td>\n      <td style=\"padding-left:12px;\">\n        <div style=\"color:#0f172a;font-size:17px;font-weight:700;\">Rapport non généré</div>\n      </td>\n    </tr></table>\n\n    <p style=\"color:#475569;font-size:14px;line-height:1.6;margin:18px 0 0 0;\">\n      Le rapport commercial automatique n'a pas pu être généré ce matin.\n    </p>\n\n    <div style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-top:16px;\">\n      <div style=\"color:#94a3b8;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;\">Raison</div>\n      <div style=\"color:#1e293b;font-size:13.5px;margin-top:4px;\">${reason}</div>\n    </div>\n  </div>\n\n  <div style=\"padding:20px 32px 26px 32px;border-top:1px solid #e2e8f0;\">\n    <div style=\"color:#94a3b8;font-size:11px;text-align:center;line-height:1.6;\">\n      Projet de démonstration — données fictives.\n    </div>\n  </div>\n\n</div>\n</body>\n</html>\n`;\n\nreturn [{ json: { subject: 'ALERTE — Rapport non généré', html } }];"
       },
       "name": "Construire le mail (alerte)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [100, 150],
+      "position": [
+        100,
+        150
+      ],
       "id": "a1b1c1d1-0007-4000-8000-000000000007"
     },
     {
@@ -140,7 +164,10 @@
       "name": "Envoyer le mail",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [580, 0],
+      "position": [
+        580,
+        0
+      ],
       "id": "a1b1c1d1-0008-4000-8000-000000000008",
       "credentials": {
         "smtp": {
@@ -152,28 +179,88 @@
   ],
   "connections": {
     "Déclencheur quotidien 7h30": {
-      "main": [[{ "node": "Chemin du CSV du jour", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Chemin du CSV du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Chemin du CSV du jour": {
-      "main": [[{ "node": "Charger le CSV (loader API)", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Charger le CSV (loader API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Charger le CSV (loader API)": {
-      "main": [[{ "node": "CSV chargé ?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "CSV chargé ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "CSV chargé ?": {
       "main": [
-        [{ "node": "Lire les KPI (vues SQL)", "type": "main", "index": 0 }],
-        [{ "node": "Construire le mail (alerte)", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Lire les KPI (vues SQL)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Construire le mail (alerte)",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Lire les KPI (vues SQL)": {
-      "main": [[{ "node": "Construire le mail (rapport)", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Construire le mail (rapport)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Construire le mail (rapport)": {
-      "main": [[{ "node": "Envoyer le mail", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Envoyer le mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Construire le mail (alerte)": {
-      "main": [[{ "node": "Envoyer le mail", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Envoyer le mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
