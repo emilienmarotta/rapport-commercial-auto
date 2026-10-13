@@ -1,6 +1,6 @@
 # 03 — Vues et requêtes KPI
 
-**Statut :** Approved
+**Statut :** Implemented
 **Dépend de :** [02-data-loader.md](02-data-loader.md)
 
 ## Objectif
@@ -51,11 +51,11 @@ Noms de vues :
 
 ## Critères d'acceptation
 
-- [ ] Chaque vue s'exécute seule (`SELECT * FROM kpi_xxx;`) sans erreur sur
+- [x] Chaque vue s'exécute seule (`SELECT * FROM kpi_xxx;`) sans erreur sur
   les données générées par la spec 01.
-- [ ] `kpi_alerte_chute` renvoie bien un flag "vrai" quand on injecte
+- [x] `kpi_alerte_chute` renvoie bien un flag "vrai" quand on injecte
   artificiellement une journée à CA très bas (test manuel).
-- [ ] Les vues restent correctes si on les rejoue un autre jour (pas de
+- [x] Les vues restent correctes si on les rejoue un autre jour (pas de
   dépendance à `CURRENT_DATE`).
-- [ ] SQL commenté : chaque vue indique en tête à quel bloc du mail elle
+- [x] SQL commenté : chaque vue indique en tête à quel bloc du mail elle
   correspond.

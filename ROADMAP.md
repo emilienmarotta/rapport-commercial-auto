@@ -11,7 +11,7 @@ pour le workflow Git).
   [specs/01-data-generator.md](specs/01-data-generator.md).
 - [x] **M2 — Chargement Postgres.** Nettoyage léger + chargement idempotent
   dans `raw_ventes`. Spec : [specs/02-data-loader.md](specs/02-data-loader.md).
-- [ ] **M3 — Requêtes SQL des KPI.** Une vue par bloc du rapport (CA veille,
+- [x] **M3 — Requêtes SQL des KPI.** Une vue par bloc du rapport (CA veille,
   comparaisons, top clients/produits, CA région, alerte chute). Spec :
   [specs/03-sql-kpis.md](specs/03-sql-kpis.md).
 - [ ] **M4 — Workflow n8n.** Planification 7h30, nœuds Postgres, assemblage
