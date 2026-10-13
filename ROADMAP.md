@@ -14,7 +14,7 @@ pour le workflow Git).
 - [x] **M3 — Requêtes SQL des KPI.** Une vue par bloc du rapport (CA veille,
   comparaisons, top clients/produits, CA région, alerte chute). Spec :
   [specs/03-sql-kpis.md](specs/03-sql-kpis.md).
-- [ ] **M4 — Workflow n8n.** Planification 7h30, nœuds Postgres, assemblage
+- [x] **M4 — Workflow n8n.** Planification 7h30, nœuds Postgres, assemblage
   et envoi du mail, branche d'erreur. Spec :
   [specs/04-n8n-workflow.md](specs/04-n8n-workflow.md).
 - [ ] **M5 — Template du mail.** HTML sobre, lisible en 30 secondes, bonus

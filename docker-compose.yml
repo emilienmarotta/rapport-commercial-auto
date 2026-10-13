@@ -22,6 +22,20 @@ services:
       - "${MAILPIT_SMTP_PORT:-1025}:1025"
       - "${MAILPIT_WEB_PORT:-8025}:8025"
 
+  loader:
+    build: ./loader
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-rapport_commercial}
+      POSTGRES_USER: ${POSTGRES_USER:-rapport_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    volumes:
+      - ./data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   n8n:
     image: n8nio/n8n:latest
     environment:
@@ -36,6 +50,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      loader:
+        condition: service_started
 
 volumes:
   pgdata:
