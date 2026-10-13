@@ -12,7 +12,7 @@ Statut possible : `Draft` (à valider) · `Approved` (prête à implémenter) ·
 | [02-data-loader.md](02-data-loader.md) | Chargement Postgres idempotent | Implemented |
 | [03-sql-kpis.md](03-sql-kpis.md) | Vues / requêtes KPI | Implemented |
 | [04-n8n-workflow.md](04-n8n-workflow.md) | Orchestration n8n + branche d'erreur | Implemented |
-| [05-email-template.md](05-email-template.md) | Template du mail | Approved |
+| [05-email-template.md](05-email-template.md) | Template du mail | Implemented |
 | [06-deliverables.md](06-deliverables.md) | Livrables portfolio Malt | Approved |
 
 Ordre d'implémentation recommandé : 00 → 01 → 02 → 03 → 04 → 05 → 06
