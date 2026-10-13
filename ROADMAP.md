@@ -19,7 +19,7 @@ pour le workflow Git).
   [specs/04-n8n-workflow.md](specs/04-n8n-workflow.md).
 - [x] **M5 — Template du mail.** HTML sobre, lisible en 30 secondes, bonus
   graphique. Spec : [specs/05-email-template.md](specs/05-email-template.md).
-- [ ] **M6 — Livrables portfolio.** Capture mail, schéma du flux, README
+- [x] **M6 — Livrables portfolio.** Capture mail, schéma du flux, README
   final. Spec : [specs/06-deliverables.md](specs/06-deliverables.md).
 
 Détail des exigences et critères d'acceptation de chaque milestone :
