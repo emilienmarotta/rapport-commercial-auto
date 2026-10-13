@@ -47,8 +47,10 @@ projet : `.venv/`), SQL. Pas d'hébergement : tout tourne en local.
 - À la fin d'un milestone : commit, push de la branche, ouverture d'une PR
   vers `main` avec `gh pr create`.
 - Quand l'utilisateur confirme que la PR a été mergée (sur GitHub) :
-  `git checkout main && git pull && git branch -d <branche>` (et suppression
-  de la branche distante si elle existe encore).
+  `git checkout main && git pull && git branch -d <branche>`. La branche
+  distante est supprimée automatiquement au merge (option
+  `delete_branch_on_merge` activée sur le repo) ; sinon, la supprimer
+  explicitement (`git push origin --delete <branche>`).
 - Dépôt GitHub public (`emilienmarotta/rapport-commercial-auto`), aucun
   secret commité (`.env` est ignoré, seul `.env.example` est versionné).
 
